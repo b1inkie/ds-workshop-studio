@@ -65,6 +65,8 @@ npm run desktop:build
 
 运行时需要同目录的 `resources/steam_api.dll`，不能只复制 exe。生成便携目录：
 
+> **从源码构建注意**：仓库不含 `steam_api.dll`（Valve 专有组件，不随源码再分发）。请自行将 **x86** 版 `steam_api.dll`（可从 [Steamworks SDK](https://partner.steamgames.com/) 的 `redistributable_bin/`，或饥荒单机版安装目录）复制到 `src-tauri/resources/steam_api.dll`。
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/package-portable.ps1
 # .local/portable/Workshop Studio/
@@ -78,7 +80,7 @@ npm run package:release
 # 以及 .zip.sha256.txt 校验清单
 ```
 
-发布包白名单仅含 `Workshop Studio.exe`、`resources/steam_api.dll`、`使用说明.txt`，不会复制便携目录中的诊断副本或本机日志、草稿。脚本校验 ZIP 内每个文件的 SHA256；改动代码后应先重新 Release 构建。使用说明源文件为 `docs/使用说明.txt`。公开分发前仍需核对 Steam DLL 的第三方分发许可。
+发布包白名单仅含 `Workshop Studio.exe`、`resources/steam_api.dll`、`使用说明.txt`，不会复制便携目录中的诊断副本或本机日志、草稿。脚本校验 ZIP 内每个文件的 SHA256；改动代码后应先重新 Release 构建。使用说明源文件为 `docs/使用说明.txt`。
 
 ### 在工具内更新（设置弹窗）
 
@@ -103,7 +105,7 @@ npm run package:release
 
 限制：清单与 ZIP 均要求 HTTPS；无签名密钥，完整性依赖 SHA256 与 HTTPS 传输；未做断点续传与自动检查，仅手动触发。
 
-这是依赖系统 WebView2 的便携构建，尚未制作安装包/运行时引导器。steam_api.dll 来自 Steamworks SDK（x86）；对外分发前需确认 Valve 的 SDK 分发授权。程序通过绝对路径加载 DLL，启动时设置自身 `SteamAppId`/`SteamGameId`，不改工作目录或其他软件的 `steam_appid.txt`。
+这是依赖系统 WebView2 的便携构建，尚未制作安装包/运行时引导器。`steam_api.dll`（© Valve）仅随 Release 中的应用包分发，不在源码仓库中；再分发前请自行确认符合 Valve 的 Steamworks SDK 条款。程序通过绝对路径加载 DLL，启动时设置自身 `SteamAppId`/`SteamGameId`，不改工作目录或其他软件的 `steam_appid.txt`。
 
 ## 验证
 
@@ -155,3 +157,7 @@ scripts/              桌面冒烟测试、便携目录生成
 - `modinfo.lua` 不是完整 Lua 解释器；动态表达式、复杂转义、语言分支、同一行多个语句不保证读取。读取不到时保留手动编辑能力并输出警告。
 - 草稿不是备份系统，清除 WebView 数据会丢失。后续会迁移为 Rust 侧可导出配置。
 - Windows x86 目标来自当前 DLL 位数，而不是游戏位数。更换 64 位 SDK 后应独立重新验证 ABI 和接口，不能只改编译目标。
+
+## 许可
+
+本项目代码以 [MIT](LICENSE) 授权。`steam_api.dll` © Valve Corporation，不适用本许可证，仅随发布包中的应用分发。依赖项（Tauri、React、ureq/rustls、zip 等）各自遵循其 MIT / Apache-2.0 等开源许可证。

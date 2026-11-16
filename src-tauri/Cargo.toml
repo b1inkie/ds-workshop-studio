@@ -2,6 +2,7 @@
 name = "ds-workshop-tool"
 version = "0.2.0"
 description = "Don't Starve Workshop Studio"
+license = "MIT"
 edition = "2021"
 rust-version = "1.85"
 

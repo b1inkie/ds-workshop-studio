@@ -7,3 +7,4 @@ src-tauri/gen/
 .local/
 test-results/
 playwright-report/
+src-tauri/resources/steam_api.dll
