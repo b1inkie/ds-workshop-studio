@@ -84,12 +84,14 @@ pub fn validate(manifest: &UpdateManifest) -> Result<(), String> {
 }
 
 pub fn check() -> Result<UpdateCheck, String> {
-    let url = manifest_url();
-    if !is_configured(&url) {
+    check_at(&manifest_url())
+}
+fn check_at(url: &str) -> Result<UpdateCheck, String> {
+    if !is_configured(url) {
         return Err("更新源尚未配置：请等待开发者提供正式更新地址。".into());
     }
     let response = agent()
-        .get(&url)
+        .get(url)
         .set(
             "User-Agent",
             concat!("WorkshopStudio/", env!("CARGO_PKG_VERSION")),
@@ -114,7 +116,7 @@ pub fn check() -> Result<UpdateCheck, String> {
         current_version: current.to_string(),
         is_newer: candidate > current,
         manifest,
-        source: url,
+        source: url.to_string(),
     })
 }
 
@@ -389,7 +391,11 @@ mod tests {
         bad_hash.sha256 = "zz".into();
         assert!(validate(&bad_hash).is_err());
         assert!(validate(&manifest("1.0")).is_err());
-        assert!(check().is_err()); // placeholder source must never reach the network
+        // A placeholder source must be refused before any network access.
+        // A placeholder source must be refused before any network access.
+        assert!(
+            matches!(check_at("https://example.com/latest.json"), Err(message) if message.contains("尚未配置"))
+        );
     }
 
     #[test]
@@ -489,5 +495,43 @@ mod tests {
         assert!(safe_entry_name("Other/x.png").is_none());
         assert!(safe_entry_name("Workshop Studio/../x").is_none());
         assert!(safe_entry_name("Workshop Studio/C:/x").is_none());
+    }
+
+    /// Real-network update test against the portable copy. Manual only:
+    /// WORKSHOP_UPDATE_URL=<manifest> WORKSHOP_EXPECT_VERSION=<x.y.z>
+    /// cargo test live_portable_update -- --ignored --nocapture
+    #[test]
+    #[ignore = "downloads from the real update source; run explicitly"]
+    fn live_portable_update() {
+        let Ok(url) = std::env::var("WORKSHOP_UPDATE_URL") else {
+            panic!("WORKSHOP_UPDATE_URL is required")
+        };
+        std::env::set_var("WORKSHOP_UPDATE_URL", url);
+        let expected = std::env::var("WORKSHOP_EXPECT_VERSION").unwrap_or_default();
+        let app_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../.local/portable/Workshop Studio")
+            .canonicalize()
+            .expect("portable copy missing; run npm run package:portable first");
+        let exe = app_dir.join("Workshop Studio.exe");
+        let old = app_dir.join("Workshop Studio.old.exe");
+        fs::remove_file(&old).ok();
+        let check = check().expect("live manifest fetch");
+        if !expected.is_empty() {
+            assert_eq!(check.manifest.version, expected);
+        }
+        println!(
+            "live manifest: v{} (current {})",
+            check.manifest.version, check.current_version
+        );
+        install(&check.manifest, &app_dir, "Workshop Studio.exe", |_| {}).expect("live install");
+        assert!(old.exists(), "previous executable must be preserved");
+        assert!(fs::read(&exe).unwrap().len() > 1_000_000);
+        println!("install ok; launch to verify cleanup");
+        let mut child = std::process::Command::new(&exe).spawn().unwrap();
+        std::thread::sleep(std::time::Duration::from_secs(6));
+        child.kill().unwrap();
+        let _ = child.wait();
+        assert!(!old.exists(), "startup must clean the .old executable");
+        println!("live portable update verified");
     }
 }
