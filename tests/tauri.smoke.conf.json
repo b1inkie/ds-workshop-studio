@@ -1,0 +1,10 @@
+{
+  "app": {
+    "windows": [{
+      "label": "main", "title": "饥荒创意工坊 · Workshop Studio",
+      "width": 1440, "height": 900, "minWidth": 1080, "minHeight": 720,
+      "center": true, "backgroundColor": "#00000000", "transparent": true, "decorations": false, "shadow": false,
+      "additionalBrowserArgs": "--remote-debugging-port=9347"
+    }]
+  }
+}

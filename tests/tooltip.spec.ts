@@ -1,0 +1,36 @@
+import { test, expect } from '@playwright/test';
+
+test('shared tooltip supports hover, focus, escape and unclipped portal layout', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.rail .brand-mark')).toHaveCount(0);
+  await expect(page.locator('[title]')).toHaveCount(0);
+  const home = page.getByRole('button', { name: '工坊管理', exact: true });
+  await home.hover();
+  const hint = page.getByRole('tooltip');
+  await expect(hint).toHaveText('工坊管理');
+  expect(await hint.evaluate(element => element.parentElement === document.body)).toBe(true);
+  const bounds = await hint.boundingBox();
+  expect(bounds?.x).toBeGreaterThanOrEqual(8);
+  expect(bounds?.y).toBeGreaterThanOrEqual(8);
+  await page.keyboard.press('Escape');
+  await expect(hint).toHaveCount(0);
+  await page.mouse.move(600, 120);
+  const refresh = page.getByRole('button', { name: '刷新工坊列表' });
+  await refresh.focus();
+  await expect(hint).toHaveText('刷新工坊列表');
+  await expect(refresh).toHaveAttribute('aria-describedby', await hint.getAttribute('id') as string);
+  await page.keyboard.press('Tab');
+  await expect(hint).toHaveCount(0);
+  const settings = page.getByRole('button', { name: '设置', exact: true });
+  await settings.focus();
+  await expect(hint).toHaveText('设置');
+  await settings.click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(hint).toHaveCount(0);
+  const close = page.getByRole('button', { name: '关闭设置' });
+  await close.focus();
+  await expect(hint).toHaveText('关闭设置');
+  await page.keyboard.press('Escape');
+  await expect(hint).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toBeVisible();
+});
