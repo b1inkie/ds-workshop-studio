@@ -276,6 +276,7 @@ fn main() {
     std::env::set_var("SteamGameId", "245850");
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 if PUBLISHING.load(std::sync::atomic::Ordering::SeqCst) {

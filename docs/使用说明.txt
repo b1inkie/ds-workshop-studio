@@ -75,5 +75,6 @@ Workshop Studio · 饥荒创意工坊工具
 Q群:
 饥荒mod制作技术交流 623398781
 
+源码仓库：https://github.com/b1inkie/ds-workshop-studio（MIT 协议开源，欢迎反馈问题与改进）。
 反馈时请提供：工具版本、Windows 版本、所选游戏、操作步骤及错误信息。
 日志如含本地路径或个人信息，请先脱敏；不要发送 Steam 密码、验证码或登录令牌。

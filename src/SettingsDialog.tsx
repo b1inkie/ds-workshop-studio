@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { Check, Download, LoaderCircle, RefreshCw, RotateCcw } from 'lucide-react';
 import Dialog from './Dialog';
+import { REPO_LABEL } from './repo';
 import { applyUpdate, checkUpdate, desktop, getAppVersion, restartApp } from './bridge';
 import type { UpdateManifest, UpdateProgress } from './types';
 
@@ -82,6 +83,6 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
     </>}
     {error && <p className="update-error" role="alert">{error}</p>}
     <h3>关于</h3>
-    <p>Workshop Studio · 饥荒创意工坊工具。前端 React / 后端 Rust / Tauri 2；不执行 Lua，工坊写入需明确确认。交流信息见左侧“联系与交流”。</p>
+    <p>Workshop Studio · 饥荒创意工坊工具。前端 React / 后端 Rust / Tauri 2；不执行 Lua，工坊写入需明确确认。开源仓库 <code>{REPO_LABEL}</code>（见“信息”弹窗可打开或复制）。交流信息见左侧“联系与交流”。</p>
   </Dialog>;
 }

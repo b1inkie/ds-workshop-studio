@@ -206,6 +206,11 @@ h1, h2, h3, p { margin: 0; }
 .dialog-body .check-option input { margin-top: 5px; flex-shrink: 0; }
 .dialog-body .metadata dd { text-align: right; display: block; }
 .update-meta { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; color: var(--muted); margin: 0 0 16px; }
+.repo-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 14px; margin: 12px 0 0; }
+.repo-row code { font-size: 13px; color: #dedee2; user-select: all; overflow-wrap: anywhere; }
+.repo-row span { display: flex; gap: 8px; }
+.repo-row .button { min-height: 34px; padding: 6px 12px; }
+.repo-hint { font-size: 13px; }
 .update-ok { display: flex; align-items: center; gap: 8px; margin: 0; }
 .update-ok svg { color: #87c59c; flex-shrink: 0; }
 .update-notes { white-space: pre-wrap; background: #1b1b1d; border: 1px solid #333; border-radius: 8px; padding: 12px 14px; margin: 14px 0 0; max-height: 180px; overflow-y: auto; }

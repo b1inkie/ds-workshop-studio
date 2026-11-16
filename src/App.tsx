@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
-import { Boxes, ChevronRight, CircleHelp, FolderOpen, Globe2, Info, Layers3, LayoutGrid, LoaderCircle, MessageCircle, Plus, RefreshCw, Save, Search, Send, Settings, ShieldCheck, Terminal, Trash2, X } from 'lucide-react';
+import { Boxes, ChevronRight, CircleHelp, Copy, FolderOpen, Globe2, Info, Layers3, LayoutGrid, LoaderCircle, MessageCircle, Plus, RefreshCw, Save, Search, Send, Settings, ShieldCheck, Terminal, Trash2, X } from 'lucide-react';
 import WindowBar from './WindowBar';
-import { chooseFolder, choosePreview, desktop, getSteamStatus, getWorkshop, readMod, saveModVersion, prepareUpload, discardUpload, submitUpload, prepareDelete, discardDelete, submitDelete } from './bridge';
+import { chooseFolder, choosePreview, copyRepository, desktop, getSteamStatus, getWorkshop, openRepository, readMod, saveModVersion, prepareUpload, discardUpload, submitUpload, prepareDelete, discardDelete, submitDelete } from './bridge';
 import PublishDialog from './PublishDialog';
 import DeleteDialog from './DeleteDialog';
 import SettingsDialog from './SettingsDialog';
+import { REPO_LABEL } from './repo';
 import TagPicker from './TagPicker';
 import Tooltip from './Tooltip';
 import Select from './Select';
@@ -244,7 +245,7 @@ export default function App() {
     {deletePlan && <DeleteDialog key={deletePlan.token} plan={deletePlan} deleting={deleting} onCancel={() => void cancelDelete()} onSubmit={id => void confirmDelete(id)} />}
     {error && <WarningDialog message={error} onClose={() => setError('')} />}
     {showContact && <ContactDialog onClose={closeContact} />}
-    {showInfo && <Dialog title="信息" onClose={() => setShowInfo(false)}><h3>连接状态</h3><p>{steamId ? `Steam ID：${steamId}` : '尚未连接 Steam'}<br />AppID：{appId} · 工具 AppID：245850<br />前端 React / 后端 Rust / 宿主 Tauri 2</p><h3>数据与安全</h3><p>草稿保存在本机。联机版与单机版发布、删除均需独立确认，不执行 Lua。工坊写入中禁止关闭窗口。单机版 ZIP 限制 100MiB，Cloud 暂存文件暂无自动清理。暂无 INI 配置导入导出。</p></Dialog>}
+    {showInfo && <Dialog title="信息" onClose={() => setShowInfo(false)}><h3>连接状态</h3><p>{steamId ? `Steam ID：${steamId}` : '尚未连接 Steam'}<br />AppID：{appId} · 工具 AppID：245850<br />前端 React / 后端 Rust / 宿主 Tauri 2</p><h3>开源仓库</h3><div className="repo-row"><code>{REPO_LABEL}</code><span><button type="button" className="button" disabled={!desktop} onClick={() => void openRepository().catch(e => setError(String(e)))}>打开源码仓库</button><Tooltip content="复制仓库地址"><button type="button" className="button" aria-label="复制仓库地址" onClick={() => void copyRepository().then(ok => setNotice(ok ? '仓库地址已复制。' : '复制失败，请手动选择文本复制。'))}><Copy size={15} /></button></Tooltip></span></div><p className="repo-hint">本工具以 MIT 协议开源，欢迎反馈问题与提交改进。</p><h3>数据与安全</h3><p>草稿保存在本机。联机版与单机版发布、删除均需独立确认，不执行 Lua。工坊写入中禁止关闭窗口。单机版 ZIP 限制 100MiB，Cloud 暂存文件暂无自动清理。暂无 INI 配置导入导出。</p></Dialog>}
     {showSettings && <SettingsDialog onClose={() => setShowSettings(false)} />}
   </div>;
 }

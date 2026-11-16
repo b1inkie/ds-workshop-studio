@@ -1,4 +1,6 @@
 import { invoke, isTauri } from '@tauri-apps/api/core';
+import { openUrl } from '@tauri-apps/plugin-opener';
+import { REPO_URL } from './repo';
 import { open } from '@tauri-apps/plugin-dialog';
 import type { ModInfo, QueryResult, SteamStatus, UploadRequest, UploadSummary, UploadOutcome, DeleteSummary, DeleteOutcome, UpdateManifest, UpdateCheck } from './types';
 
@@ -25,3 +27,21 @@ export const getAppVersion = () => invoke<string>('app_version');
 export const checkUpdate = () => invoke<UpdateCheck>('check_update');
 export const applyUpdate = (manifest: UpdateManifest) => invoke<void>('apply_update', { manifest });
 export const restartApp = () => invoke<void>('restart_app');
+export async function openRepository(): Promise<void> {
+  if (!isTauri()) throw new Error('浏览器预览无法打开外部链接，请手动复制地址。');
+  await openUrl(REPO_URL);
+}
+export async function copyRepository(): Promise<boolean> {
+  try { await navigator.clipboard.writeText(REPO_URL); return true; }
+  catch {
+    const field = document.createElement('textarea');
+    field.value = REPO_URL;
+    field.style.position = 'fixed';
+    field.style.opacity = '0';
+    document.body.append(field);
+    field.select();
+    const copied = document.execCommand('copy');
+    field.remove();
+    return copied;
+  }
+}
